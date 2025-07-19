@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request, flash, send_from_directory
+from flask import Flask, render_template, redirect, url_for, request, flash, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -63,15 +63,24 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    presets = Preset.query.all()
-    return render_template('dashboard.html', presets=presets)
+    folders = db.session.query(Preset.folder).distinct().all()
+    folder_names = [f[0] for f in folders]
+    return render_template('dashboard_folders.html', folders=folder_names)
+
+@app.route('/dashboard/<folder_name>')
+@login_required
+def dashboard_folder(folder_name):
+    presets = Preset.query.filter_by(folder=folder_name).all()
+    if not presets:
+        abort(404)
+    return render_template('dashboard_files.html', folder=folder_name, presets=presets)
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
     if request.method == 'POST':
         folder = request.form['folder']
-        files = request.files.getlist('preset')  # Получаем список файлов
+        files = request.files.getlist('preset')
         if files:
             save_path = os.path.join(app.config['UPLOAD_FOLDER'], folder)
             os.makedirs(save_path, exist_ok=True)

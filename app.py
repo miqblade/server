@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, redirect, url_for, request, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
@@ -71,16 +71,18 @@ def dashboard():
 def upload():
     if request.method == 'POST':
         folder = request.form['folder']
-        file = request.files['preset']
-        if file:
-            filename = secure_filename(file.filename)
+        files = request.files.getlist('preset')  # Получаем список файлов
+        if files:
             save_path = os.path.join(app.config['UPLOAD_FOLDER'], folder)
             os.makedirs(save_path, exist_ok=True)
-            file.save(os.path.join(save_path, filename))
-            preset = Preset(filename=filename, folder=folder)
-            db.session.add(preset)
+            for file in files:
+                if file and file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(save_path, filename))
+                    preset = Preset(filename=filename, folder=folder)
+                    db.session.add(preset)
             db.session.commit()
-            flash('File uploaded successfully')
+            flash('Files uploaded successfully')
             return redirect(url_for('dashboard'))
     return render_template('upload.html')
 

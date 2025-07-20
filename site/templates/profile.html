@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Your Profile - LZT{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-box">
+        <div class="profile-header">
+            <div class="user-avatar">{{ user.username[0] }}</div>
+            <h2>{{ user.username }}</h2>
+        </div>
+        
+        <div class="user-details">
+            <div class="detail-row">
+                <div class="detail-label">Username:</div>
+                <div class="detail-value">{{ user.username }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value">{{ user.email }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Balance:</div>
+                <div class="detail-value">${{ user.balance }}</div>
+            </div>
+        </div>
+        
+        <div class="profile-actions-grid">
+            <div class="action-column">
+                <a href="#" class="action-button">Edit Profile</a>
+                <a href="#" class="action-button">Add Funds</a>
+            </div>
+            <div class="action-column">
+                <a href="#" class="action-button">Change Password</a>
+                <a href="{{ url_for('index') }}" class="action-button">Back to Store</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

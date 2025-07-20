@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Join LZT{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Join our community of creators</p>
+        </div>
+        
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <div class="input-group">
+                {{ form.username(class="input-field", placeholder="Username", autocomplete="off") }}
+            </div>
+            
+            <div class="input-group">
+                {{ form.email(class="input-field", placeholder="Email Address", autocomplete="off") }}
+            </div>
+            
+            <div class="input-group">
+                {{ form.password(class="input-field", placeholder="Password", autocomplete="off") }}
+            </div>
+            
+            <div class="input-group">
+                {{ form.confirm_password(class="input-field", placeholder="Confirm Password", autocomplete="off") }}
+            </div>
+            
+            {{ form.submit(class="submit-btn") }}
+        </form>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Sign In</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

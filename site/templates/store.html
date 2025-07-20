@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}LZT Marketplace{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>After Effects Templates</h1>
+    <p>Professional motion graphics packs for your creative projects</p>
+</div>
+
+{% if cart_count > 0 %}
+<div class="cart-indicator">
+    <a href="{{ url_for('cart') }}">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-count">{{ cart_count }}</span>
+    </a>
+</div>
+{% endif %}
+
+<div class="products-grid">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="product-image-container">
+            <img class="product-image" src="../static/products/product-1.png" alt="{{ product.name }}">
+        </div>
+        <div class="product-info">
+            <h3 class="product-title">{{ product.name }}</h3>
+            <p class="product-description">{{ product.description }}</p>
+            <div class="product-meta">
+                <div class="product-price">${{ product.price }}</div>
+                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="buy-btn">Add to Cart</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Your Cart - LZT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Your Shopping Cart</h1>
+</div>
+
+<div class="cart-container">
+    {% if cart_items %}
+    <div class="cart-items">
+        {% for item in cart_items %}
+        <div class="cart-item">
+            <div class="item-image">
+                <img src="../static/products/product-1.png" alt="{{ item.product.name }}">
+            </div>
+            <div class="item-details">
+                <h3>{{ item.product.name }}</h3>
+                <p>{{ item.product.description[:100] }}...</p>
+                <div class="item-price">${{ item.product.price }} x {{ item.quantity }}</div>
+            </div>
+            <div class="item-total">
+                ${{ item.item_total }}
+            </div>
+            <div class="item-actions">
+                <a href="{{ url_for('remove_from_cart', product_id=item.product.id) }}" class="remove-btn">
+                    &times;
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="cart-summary">
+        <div class="summary-header">
+            <h3>Order Summary</h3>
+        </div>
+        <div class="summary-details">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>${{ total }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax</span>
+                <span>$0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>${{ total }}</span>
+            </div>
+            <button class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <h3>Your cart is empty</h3>
+        <p>Browse our collection to find amazing templates</p>
+        <a href="{{ url_for('index') }}" class="cta-button cta-primary">Browse Products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

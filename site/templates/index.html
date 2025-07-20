@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Welcome to LZT{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Unlock Your Creative Potential</h1>
+        <p class="hero-subtitle">Join thousands of creators using LZT templates to elevate their projects</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('register') }}" class="cta-button cta-primary">Get Started</a>
+            <a href="{{ url_for('index') }}" class="cta-button cta-secondary">View Products</a>
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <div class="feature-card">
+        <div class="feature-icon">🎬</div>
+        <h3 class="feature-title">Premium After Effects Templates</h3>
+        <p class="feature-description">High-quality motion graphics packs for your creative projects. Save time and enhance your videos.</p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <h3 class="feature-title">Easy to Customize</h3>
+        <p class="feature-description">All templates are fully customizable with intuitive controls. No advanced skills required.</p>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">💎</div>
+        <h3 class="feature-title">Exclusive Content</h3>
+        <p class="feature-description">Get access to exclusive packs not available anywhere else. Regular updates and new releases.</p>
+    </div>
+</div>
+{% endblock %}

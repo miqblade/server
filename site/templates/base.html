@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>LZT | {% block title %}{% endblock %}</title>
+    <style>
+        /* Черный логотип */
+        .logo {
+            color: #000;
+            font-weight: 700;
+            font-size: 28px;
+            letter-spacing: -1px;
+        }
+        
+        /* Убрать стили для посещенных ссылок */
+        a:visited {
+            color: inherit;
+        }
+        
+        /* Убрать подчеркивание по умолчанию */
+        a {
+            text-decoration: none;
+        }
+        
+        /* Стиль только при наведении */
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Убрать подчеркивание для кнопок при наведении */
+        .buy-btn:hover, .cta-button:hover, .submit-btn:hover, 
+        .checkout-btn:hover, .action-button:hover, .remove-btn:hover {
+            text-decoration: none !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <span>LZT</span>
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">Templates</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+                
+                <div class="user-menu-container">
+                    {% if current_user.is_authenticated %}
+                    <button class="user-btn" onclick="toggleDropdown()">
+                        <span class="user-avatar-small">{{ current_user.username[0] }}</span>
+                        <span>{{ current_user.username }}</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="{{ url_for('profile') }}">My Profile</a>
+                        <a href="{{ url_for('cart') }}">Shopping Cart</a>
+                        <a href="#">Purchase History</a>
+                        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                    </div>
+                    {% else %}
+                    <div class="auth-links">
+                        <a href="{{ url_for('login') }}" class="btn">Sign In</a>
+                        <a href="{{ url_for('register') }}" class="btn primary">Sign Up</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Закрываем выпадающее меню при клике вне его
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userBtn = document.querySelector('.user-btn');
+            
+            if (dropdown && userBtn) {
+                if (!userBtn.contains(event.target) && !dropdown.contains(event.target) && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

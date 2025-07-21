@@ -27,7 +27,7 @@ body {
 }
 
 a {
-    text-decoration: none;
+    text-decoration: none !important;
     color: inherit;
 }
 
@@ -867,7 +867,268 @@ a:visited {
 .action-button {
     color: var(--white-text) !important;
 }
+
+.password-input-container {
+    position: relative;
+}
+
+/* Стили для иконки переключения пароля */
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 18px;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+/* Стили для сообщений об ошибках */
+.error-messages {
+    margin-top: 8px;
+}
+
+.error-message {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 5px;
+    padding: 5px 10px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: 5px;
+    animation: fadeIn 0.3s;
+}
+
+/* Анимация появления ошибок */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.about-section, .templates-section, .pricing-section, .support-section {
+    padding: 60px 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-header h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.section-header p {
+    color: var(--light-text);
+    font-size: 18px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.content-block {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.content-block h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--primary);
+}
+
+/* Стили для страницы "О нас" */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.team-member {
+    text-align: center;
+}
+
+.team-avatar {
+    width: 120px;
+    height: 120px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+/* Стили для страницы поддержки */
+.support-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.support-option {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.support-option .icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: var(--accent);
+}
+
+/* Стили для страницы шаблонов */
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.category-btn {
+    padding: 10px 25px;
+    background: #f0f0f0;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.category-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* Стили для страницы цен */
+.pricing-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.pricing-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.pricing-card.featured {
+    border: 2px solid var(--accent);
+    transform: scale(1.03);
+}
+
+.pricing-header {
+    margin-bottom: 30px;
+}
+
+.pricing-price {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 20px 0;
+}
+
+.pricing-price span {
+    font-size: 18px;
+    color: var(--light-text);
+}
+
+.pricing-features {
+    list-style: none;
+    margin: 30px 0;
+    text-align: left;
+}
+
+.pricing-features li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+}
+
+.pricing-features li:before {
+    content: "✓";
+    color: var(--success);
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.pricing-features li.disabled {
+    color: var(--light-text);
+}
+
+.pricing-features li.disabled:before {
+    content: "✕";
+    color: var(--danger);
+}
+
+/* Добавим в конец файла */
+.support-option {
+    padding: 30px 20px; /* Увеличим внутренние отступы */
+    height: 280px; /* Фиксированная высота карточки */
+    display: flex;
+    flex-direction: column;
+}
+
+.support-option-top {
+    flex: 1; /* Занимает всё доступное пространство */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.support-option .icon {
+    margin-bottom: 20px;
+}
+
+.support-option h3 {
+    margin-bottom: 15px;
+    min-height: 60px; /* Минимальная высота для заголовка */
+}
+
+.support-option p {
+    margin-bottom: 25px;
+    flex-grow: 1; /* Растягиваем абзац на доступное пространство */
+}
+
+.support-option .cta-button {
+    margin-top: auto; /* Прижимаем кнопку к низу */
+}
+
 /* Responsive */
+@media (max-width: 768px) {
+    .content-block {
+        padding: 30px 20px;
+    }
+    
+    .pricing-card.featured {
+        transform: scale(1);
+    }
+}
+
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;

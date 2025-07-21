@@ -11,20 +11,87 @@
         
         <form method="POST" action="">
             {{ form.hidden_tag() }}
+            
+            <!-- Поле имени пользователя с ошибками -->
             <div class="input-group">
                 {{ form.username(class="input-field", placeholder="Username", autocomplete="off") }}
+                {% if form.username.errors %}
+                <div class="error-messages">
+                    {% for error in form.username.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
             
+            <!-- Поле email с ошибками -->
             <div class="input-group">
                 {{ form.email(class="input-field", placeholder="Email Address", autocomplete="off") }}
+                {% if form.email.errors %}
+                <div class="error-messages">
+                    {% for error in form.email.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
             
+            <!-- Поле пароля с переключателем и ошибками -->
             <div class="input-group">
-                {{ form.password(class="input-field", placeholder="Password", autocomplete="off") }}
+                <div class="password-input-container">
+                    {{ form.password(class="input-field", placeholder="Password", autocomplete="off", id="password") }}
+                    <span class="password-toggle" data-target="password">👁️‍🗨️</span>
+                </div>
+                {% if form.password.errors %}
+                <div class="error-messages">
+                    {% for error in form.password.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
             
+            <!-- Поле подтверждения пароля с переключателем -->
             <div class="input-group">
-                {{ form.confirm_password(class="input-field", placeholder="Confirm Password", autocomplete="off") }}
+                <div class="password-input-container">
+                    {{ form.confirm_password(class="input-field", placeholder="Confirm Password", autocomplete="off", id="confirm_password") }}
+                    <span class="password-toggle" data-target="confirm_password">👁️‍🗨️</span>
+                </div>
+                {% if form.confirm_password.errors %}
+                <div class="error-messages">
+                    {% for error in form.confirm_password.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="input-group">
+                {{ form.email(class="input-field", placeholder="Email Address", autocomplete="off") }}
+                {% if form.email.errors or email_error %}
+                <div class="error-messages">
+                    {% for error in form.email.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                    {% if email_error %}
+                    <div class="error-message">{{ email_error }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="input-group">
+                {{ form.username(class="input-field", placeholder="Username", autocomplete="off") }}
+                {% if form.username.errors or username_error %}
+                <div class="error-messages">
+                    {% for error in form.username.errors %}
+                    <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                    {% if username_error %}
+                    <div class="error-message">{{ username_error }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
             
             {{ form.submit(class="submit-btn") }}

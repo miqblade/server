@@ -6,17 +6,49 @@ import re
 def simple_email_validator(form, field):
     email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     if not re.match(email_pattern, field.data):
-        raise ValidationError('Invalid email address')
+        raise ValidationError('Неверный формат email адреса')
+
+def password_complexity(form, field):
+    """Валидатор сложности пароля"""
+    password = field.data
+    if len(password) < 8:
+        raise ValidationError('Пароль должен содержать минимум 8 символов')
+    if not re.search(r'\d', password):
+        raise ValidationError('Пароль должен содержать хотя бы одну цифру')
+    if not re.search(r'[A-Z]', password):
+        raise ValidationError('Пароль должен содержать хотя бы одну заглавную букву')
+    if not re.search(r'[a-z]', password):
+        raise ValidationError('Пароль должен содержать хотя бы одну строчную букву')
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        raise ValidationError('Пароль должен содержать хотя бы один специальный символ')
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=4, max=50)])
-    email = StringField('Email', validators=[DataRequired(), simple_email_validator])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
+   
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        # Добавляем подсказку для поля пароля
+        self.password.description = "Пароль должен содержать минимум 8 символов, цифры, заглавные и строчные буквы, специальные символы"
+
+    username = StringField('Имя пользователя', validators=[
+        DataRequired(message='Это поле обязательно'),
+        Length(min=4, max=50, message='Длина должна быть от 4 до 50 символов')
+    ])
+    email = StringField('Email', validators=[
+        DataRequired(message='Это поле обязательно'), 
+        simple_email_validator
+    ])
+    password = PasswordField('Пароль', validators=[
+        DataRequired(message='Это поле обязательно'),
+        password_complexity
+    ])
+    confirm_password = PasswordField('Подтвердите пароль', validators=[
+        DataRequired(message='Это поле обязательно'), 
+        EqualTo('password', message='Пароли должны совпадать')
+    ])
+    submit = SubmitField('Зарегистрироваться')
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember me')
-    submit = SubmitField('Sign In')
+    email = StringField('Email', validators=[DataRequired(message='Это поле обязательно')])
+    password = PasswordField('Пароль', validators=[DataRequired(message='Это поле обязательно')])
+    remember_me = BooleanField('Запомнить меня')
+    submit = SubmitField('Войти')

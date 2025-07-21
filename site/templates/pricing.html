@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Pricing - LZT{% endblock %}
+
+{% block content %}
+<section class="pricing-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Simple, Transparent Pricing</h2>
+            <p>Choose the plan that works best for your creative needs</p>
+        </div>
+        
+        <div class="pricing-table">
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Starter</h3>
+                    <p>Perfect for beginners</p>
+                </div>
+                <div class="pricing-price">$9<span>/month</span></div>
+                <ul class="pricing-features">
+                    <li>5 downloads per month</li>
+                    <li>Basic templates</li>
+                    <li>Community support</li>
+                    <li class="disabled">Premium assets</li>
+                    <li class="disabled">Early access</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="cta-button cta-secondary">Get Started</a>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="pricing-header">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <h3>Creator</h3>
+                    <p>For serious content creators</p>
+                </div>
+                <div class="pricing-price">$29<span>/month</span></div>
+                <ul class="pricing-features">
+                    <li>20 downloads per month</li>
+                    <li>All standard templates</li>
+                    <li>Priority support</li>
+                    <li>Premium assets pack</li>
+                    <li class="disabled">Early access</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="cta-button cta-primary">Get Started</a>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Agency</h3>
+                    <p>For teams and professionals</p>
+                </div>
+                <div class="pricing-price">$99<span>/month</span></div>
+                <ul class="pricing-features">
+                    <li>Unlimited downloads</li>
+                    <li>All premium templates</li>
+                    <li>24/7 dedicated support</li>
+                    <li>All premium assets</li>
+                    <li>Early access to new releases</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="cta-button cta-secondary">Get Started</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

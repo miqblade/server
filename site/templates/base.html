@@ -47,10 +47,11 @@
                 
                 <ul class="nav-links">
                     <li><a href="{{ url_for('index') }}">Home</a></li>
-                    <li><a href="#">Products</a></li>
-                    <li><a href="#">Templates</a></li>
-                    <li><a href="#">Pricing</a></li>
-                    <li><a href="#">Support</a></li>
+                    <li><a href="{{ url_for('products') }}">Products</a></li>
+                    <li><a href="{{ url_for('templates') }}">Templates</a></li>
+                    <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
+                    <li><a href="{{ url_for('support') }}">Support</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
                 </ul>
                 
                 <div class="user-menu-container">
@@ -108,6 +109,35 @@
                     dropdown.classList.remove('show');
                 }
             }
+        });
+
+        // Функция для переключения видимости пароля
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.querySelector(`[data-target="${inputId}"]`);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '👁️';
+            } else {
+                input.type = 'password';
+                icon.textContent = '👁️‍🗨️';
+            }
+        }
+        
+        // Функция для инициализации переключателей пароля
+        function initPasswordToggles() {
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    togglePasswordVisibility(targetId);
+                });
+            });
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initPasswordToggles();
         });
     </script>
 </body>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Templates - LZT{% endblock %}
+
+{% block content %}
+<section class="templates-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Template Categories</h2>
+            <p>Explore our collection of premium templates</p>
+        </div>
+        
+        <div class="categories">
+            <button class="category-btn active">All Templates</button>
+            <button class="category-btn">After Effects</button>
+            <button class="category-btn">Premiere Pro</button>
+            <button class="category-btn">Motion Graphics</button>
+            <button class="category-btn">Transitions</button>
+            <button class="category-btn">Title Packs</button>
+        </div>
+        
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img class="product-image" src="../static/products/product-1.png" alt="{{ product.name }}">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description }}</p>
+                    <div class="product-meta">
+                        <div class="product-price">${{ product.price }}</div>
+                        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="buy-btn">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

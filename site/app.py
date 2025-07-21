@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_bcrypt import Bcrypt
 from forms import RegistrationForm, LoginForm
 import os
 
@@ -10,6 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ludiflex_admin:joker1337@3
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -67,6 +69,32 @@ def initialize_database():
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/products')
+@login_required
+def products():
+    products = Product.query.all()
+    cart_count = sum(session.get('cart', {}).values())
+    return render_template('store.html', products=products, cart_count=cart_count)
+
+@app.route('/templates')
+def templates():
+    return render_template('templates.html')
+
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@app.route('/support')
+def support():
+    return render_template('support.html')
+
+def index():
     if current_user.is_authenticated:
         products = Product.query.all()
         cart_count = sum(session.get('cart', {}).values())
@@ -80,14 +108,27 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Проверка существующего email
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash('Аккаунт с таким email уже существует!', 'danger')
+            return render_template('register.html', form=form)
+        
+        # Проверка существующего имени пользователя
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        if existing_username:
+            flash('Аккаунт с таким именем пользователя уже существует!', 'danger')
+            return render_template('register.html', form=form)
+        
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(
             username=form.username.data,
             email=form.email.data,
-            password=form.password.data
+            password=hashed_password
         )
         db.session.add(user)
         db.session.commit()
-        flash('Registration successful! Please log in.', 'success')
+        flash('Регистрация прошла успешно! Теперь вы можете войти.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
@@ -99,11 +140,25 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and user.password == form.password.data:
-            login_user(user, remember=form.remember_me.data)
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('index'))
-        flash('Invalid email or password', 'danger')
+        
+        # Проверка для миграции старых паролей
+        if user:
+            # Если пароль в формате bcrypt
+            if user.password.startswith('$2b$'):
+                if bcrypt.check_password_hash(user.password, form.password.data):
+                    login_user(user, remember=form.remember_me.data)
+                    next_page = request.args.get('next')
+                    return redirect(next_page or url_for('index'))
+            # Если пароль в открытом виде (старая версия)
+            elif user.password == form.password.data:
+                # Конвертируем в bcrypt
+                user.password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                db.session.commit()
+                login_user(user, remember=form.remember_me.data)
+                next_page = request.args.get('next')
+                return redirect(next_page or url_for('index'))
+        
+        flash('Неверный email или пароль', 'danger')
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -124,8 +179,11 @@ def add_to_cart(product_id):
         cart[product_id_str] = 1
     
     session['cart'] = cart
-    flash('Product added to cart!', 'success')
-    return redirect(url_for('index'))
+    flash('Товар добавлен в корзину!', 'success')
+    
+    # Определяем откуда пришел запрос и возвращаем обратно
+    referrer = request.referrer or url_for('products')
+    return redirect(referrer)
 
 @app.route('/remove_from_cart/<int:product_id>')
 @login_required
@@ -140,7 +198,7 @@ def remove_from_cart(product_id):
             del cart[product_id_str]
         
         session['cart'] = cart
-        flash('Product removed from cart!', 'success')
+        flash('Товар удалён из корзины!', 'success')
     
     return redirect(url_for('cart'))
 

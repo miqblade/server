@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Support - LZT{% endblock %}
+
+{% block content %}
+<section class="support-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>How Can We Help?</h2>
+            <p>Our support team is ready to assist you</p>
+        </div>
+        
+        <div class="support-options">
+            <div class="support-option">
+                <div class="support-option-top">
+                    <div class="icon">📚</div>
+                    <h3>Knowledge Base</h3>
+                    <p>Browse our comprehensive tutorials and guides</p>
+                </div>
+                <a href="#" class="cta-button cta-secondary">Explore Guides</a>
+            </div>
+            
+            <div class="support-option">
+                <div class="support-option-top">
+                    <div class="icon">🎥</div>
+                    <h3>Video Tutorials</h3>
+                    <p>Step-by-step video instructions for all products</p>
+                </div>
+                <a href="#" class="cta-button cta-secondary">Watch Videos</a>
+            </div>
+            
+            <div class="support-option">
+                <div class="support-option-top">
+                    <div class="icon">✉️</div>
+                    <h3>Contact Support</h3>
+                    <p>Email our team for personalized assistance</p>
+                </div>
+                <a href="mailto:support@lzt.com" class="cta-button cta-secondary">Email Us</a>
+            </div>
+        </div>
+        
+        <div class="content-block">
+            <h3 class="text-center">Frequently Asked Questions</h3>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <h4>How do I install templates?</h4>
+                    <p>All our templates come with detailed installation guides. For After Effects templates, simply open the .aep file in After Effects CC 2018 or later.</p>
+                </div>
+                
+                <div class="faq-item">
+                    <h4>What are the system requirements?</h4>
+                    <p>Our templates require Adobe After Effects CC 2018+ or Adobe Premiere Pro CC 2019+. Most templates work best with 8GB+ RAM and a dedicated GPU.</p>
+                </div>
+                
+                <div class="faq-item">
+                    <h4>Can I use templates for commercial projects?</h4>
+                    <p>Yes! All our templates come with a commercial license that allows you to use them in client projects, social media, and broadcast.</p>
+                </div>
+                
+                <div class="faq-item">
+                    <h4>How often do you release new templates?</h4>
+                    <p>We release 10-15 new templates every month. Subscribers get early access to all new releases.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .support-options {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .support-option {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .support-option-top {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .support-option .icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+    
+    .support-option h3 {
+        font-size: 22px;
+        margin-bottom: 15px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .support-option p {
+        color: var(--light-text);
+        line-height: 1.6;
+        margin-bottom: 25px;
+        flex-grow: 1;
+    }
+    
+    .faq-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .faq-item {
+        margin-bottom: 25px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .faq-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .faq-item h4 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+</style>
+{% endblock %}

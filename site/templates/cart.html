@@ -12,11 +12,11 @@
         {% for item in cart_items %}
         <div class="cart-item">
             <div class="item-image">
-                <img src="../static/products/product-1.png" alt="{{ item.product.name }}">
+                <img src="../static/products/{{ item.product.image }}" alt="{{ item.product.name }}">
             </div>
             <div class="item-details">
                 <h3>{{ item.product.name }}</h3>
-                <p>{{ item.product.description[:100] }}...</p>
+                <p>{{ item.product.description }}</p>
                 <div class="item-price">${{ item.product.price }} x {{ item.quantity }}</div>
             </div>
             <div class="item-total">
@@ -48,14 +48,16 @@
                 <span>Total</span>
                 <span>${{ total }}</span>
             </div>
-            <button class="checkout-btn">Proceed to Checkout</button>
+            <form method="POST" action="{{ url_for('checkout') }}">
+                <button type="submit" class="checkout-btn">Complete Purchase</button>
+            </form>
         </div>
     </div>
     {% else %}
     <div class="empty-cart">
         <h3>Your cart is empty</h3>
         <p>Browse our collection to find amazing templates</p>
-         <a href="{{ url_for('products') }}" class="cta-button cta-primary">Browse Products</a>
+        <a href="{{ url_for('index') }}" class="cta-button cta-primary">Browse Products</a>
     </div>
     {% endif %}
 </div>

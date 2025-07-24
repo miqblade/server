@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Purchase Successful - LZT{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="purchase-success">
+        <h2>Purchase Successful!</h2>
+        <p>Your activation keys:</p>
+        
+        <div class="activation-keys">
+            {% for key in activation_keys %}
+            <div class="activation-key-card">
+                <div class="key-value">{{ key.key }}</div>
+                <div class="key-info">
+                    <span>Package: {{ key.package.name }}</span>
+                    <span>Valid until: {{ key.expires_at.strftime('%Y-%m-%d') }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <a href="{{ url_for('profile') }}" class="cta-button cta-primary">Go to Profile</a>
+    </div>
+</div>
+{% endblock %}

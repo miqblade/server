@@ -1,32 +1,63 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask_bcrypt import Bcrypt
-from forms import RegistrationForm, LoginForm
+from flask import Flask, render_template, redirect, url_for, flash, request, session
 from models import db, User, Product, Package, ActivationKey, Purchase
+from forms import RegistrationForm, LoginForm
+from datetime import datetime, timedelta, timezone
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
+from sqlalchemy.exc import IntegrityError
+from flask_mail import Mail
+from flask import json
 import os
 import random
 import string
-from datetime import datetime, timedelta
-from sqlalchemy.exc import IntegrityError
 import logging
+
+from utils import send_purchase_key_email, send_reset_password_email, send_verification_email
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Yy93kDt8@Zs4vPx1#AjmRwXq9N8LdUq'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ludiflex_admin:joker1337@34.30.158.137/ludiflex'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ludiflex_admin:joker1337@34.28.211.167:5432/ludiflex'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = 'mail.privateemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'support@lzt.store'
+app.config['MAIL_PASSWORD'] = 't9#Ypn97DeZa.h-'
+app.config['MAIL_DEFAULT_SENDER'] = 'support@lzt.store'
 
 db.init_app(app)
 bcrypt = Bcrypt(app)
+migrate = Migrate(app, db)
+mail = Mail(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_manager.login_message = "Please log in to access this page"
+login_manager.login_message_category = "error"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_country_emoji(country_code):
+    """Возвращает emoji флага для кода страны"""
+    emoji_map = {
+        'US': '🇺🇸', 'RU': '🇷🇺', 'GB': '🇬🇧', 'DE': '🇩🇪',
+        'FR': '🇫🇷', 'JP': '🇯🇵', 'CN': '🇨🇳', 'IN': '🇮🇳',
+        'BR': '🇧🇷', 'CA': '🇨🇦', 'AU': '🇦🇺', 'KR': '🇰🇷',
+        'UA': '🇺🇦', 'KZ': '🇰🇿', 'BY': '🇧🇾', 'TR': '🇹🇷',
+        'IT': '🇮🇹', 'ES': '🇪🇸', 'PL': '🇵🇱', 'NL': '🇳🇱'
+    }
+    return emoji_map.get(country_code.upper(), '🌐')
+
+@app.context_processor
+def utility_processor():
+    return dict(get_country_emoji=get_country_emoji)
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 def generate_activation_key():
     while True:
@@ -71,15 +102,15 @@ def create_test_data():
                 
                 Product(name="LZT Transitions Pro",
                         description="100+ smooth transitions for your video projects",
-                        price=29.99, image="product-2.png", package_id=1),
+                        price=29.99, image="product-2.png", package_id=2),
                 
                 Product(name="LZT Text Animations",
                         description="200+ text animation presets for After Effects",
-                        price=39.99, image="product-3.png", package_id=2),
+                        price=39.99, image="product-3.png", package_id=3),
                 
                 Product(name="LZT Particles Universe",
                         description="Create stunning particle effects with 30+ presets",
-                        price=59.99, image="product-4.png", package_id=1)
+                        price=59.99, image="product-4.png", package_id=4)
             ]
             db.session.add_all(products)
             db.session.commit()
@@ -89,13 +120,88 @@ def create_test_data():
         logger.error(f"Failed to create test data: {e}")
         db.session.rollback()
 
+@app.before_request
+def before_request():
+    if not current_user.is_authenticated and request.endpoint in ['profile', 'cart']:
+        flash("Please log in to access this page", "error")
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        products = Product.query.all()
-        cart_count = sum(session.get('cart', {}).values())
-        return render_template('store.html', products=products, cart_count=cart_count)
+        return render_template('index.html')
     return render_template('index.html')
+
+@app.route('/resend-verification', methods=['GET'])
+def resend_verification():
+    email = session.get('email')
+    if not email:
+        flash('Сессия истекла. Пожалуйста, зарегистрируйтесь заново.', 'danger')
+        return redirect(url_for('register'))
+    
+    user = User.query.filter_by(email=email).first()
+    if user:
+        code = str(random.randint(100000, 999999))
+        user.verify_code = code
+        db.session.commit()
+        try:
+            send_verification_email(email, code)
+            flash('Новый код верификации отправлен на ваш email.', 'success')
+        except Exception as e:
+            flash(f'Ошибка отправки кода: {str(e)}', 'danger')
+    else:
+        flash('Пользователь не найден. Пожалуйста, зарегистрируйтесь заново.', 'danger')
+        return redirect(url_for('register'))
+    
+    return redirect(url_for('verify'))
+
+@app.route('/reset-request', methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            code = str(random.randint(100000, 999999))
+            user.reset_code = code
+            db.session.commit()
+            session['email'] = email  # Сохраняем email в сессии
+            try:
+                send_reset_password_email(email, code)
+                flash('Код сброса пароля отправлен на ваш email.', 'success')
+                return redirect(url_for('reset_password'))
+            except Exception as e:
+                flash(f'Ошибка отправки кода: {str(e)}', 'danger')
+        else:
+            flash('Email не найден.', 'danger')
+    
+    return render_template('reset_request.html')
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    email = session.get('email')  # Получаем email из сессии
+    if not email:
+        flash('Сессия истекла. Пожалуйста, запросите сброс пароля заново.', 'danger')
+        return redirect(url_for('reset_request'))
+    
+    if request.method == 'POST':
+        code = request.form.get('code')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and user.reset_code == code:
+            user.password = bcrypt.generate_password_hash(password).decode('utf-8')
+            user.reset_code = None
+            db.session.commit()
+            session.pop('email', None)  # Удаляем email из сессии
+            flash('Пароль успешно изменен! Теперь вы можете войти.', 'success')
+            return redirect(url_for('login'))
+        flash('Неверный код сброса пароля', 'danger')
+    
+    return render_template('reset_password.html', email=email)
 
 @app.route('/about')
 def about():
@@ -129,15 +235,19 @@ def register():
     if form.validate_on_submit():
         try:
             hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            code = str(random.randint(100000, 999999))
             user = User(
                 username=form.username.data,
                 email=form.email.data,
-                password=hashed_password
+                password=hashed_password,
+                verify_code=code
             )
             db.session.add(user)
             db.session.commit()
-            flash('Регистрация прошла успешно! Теперь вы можете войти.', 'success')
-            return redirect(url_for('login'))
+            session['email'] = form.email.data  # Сохраняем email в сессии
+            send_verification_email(form.email.data, code)
+            flash('Регистрация успешна! Код верификации отправлен на ваш email.', 'success')
+            return redirect(url_for('verify'))
         except IntegrityError as e:
             db.session.rollback()
             if "user_username_key" in str(e):
@@ -145,7 +255,10 @@ def register():
             elif "user_email_key" in str(e):
                 form.email.errors.append('Этот email уже используется')
             else:
-                flash('Произошла ошибка при регистрации', 'danger')
+                flash('Ошибка при регистрации', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка: {str(e)}', 'danger')
     
     return render_template('register.html', form=form)
 
@@ -158,6 +271,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
+            if not user.verified:
+                flash('Пожалуйста, верифицируйте ваш email перед входом', 'error')
+                return redirect(url_for('verify'))
             if user.password.startswith('$2b$'):
                 if bcrypt.check_password_hash(user.password, form.password.data):
                     login_user(user, remember=form.remember_me.data)
@@ -170,6 +286,30 @@ def login():
         
         flash('Неверный email или пароль', 'danger')
     return render_template('login.html', form=form)
+
+@app.route('/verify', methods=['GET', 'POST'])
+def verify():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    email = session.get('email')  # Получаем email из сессии
+    if not email:
+        flash('Сессия истекла. Пожалуйста, зарегистрируйтесь заново.', 'danger')
+        return redirect(url_for('register'))
+    
+    if request.method == 'POST':
+        code = request.form.get('code')
+        user = User.query.filter_by(email=email).first()
+        if user and user.verify_code == code:
+            user.verified = True
+            user.verify_code = None
+            db.session.commit()
+            session.pop('email', None)  # Удаляем email из сессии после верификации
+            flash('Email успешно верифицирован! Теперь вы можете войти.', 'success')
+            return redirect(url_for('login'))
+        flash('Неверный код верификации', 'danger')
+    
+    return render_template('verify.html', email=email)
 
 @app.route('/logout')
 @login_required
@@ -190,7 +330,7 @@ def add_to_cart(product_id):
     
     session['cart'] = cart
     flash('Товар добавлен в корзину!', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('cart'))
 
 @app.route('/remove_from_cart/<int:product_id>')
 @login_required
@@ -232,69 +372,78 @@ def cart():
 @app.route('/checkout', methods=['POST'])
 @login_required
 def checkout():
-    cart = session.get('cart', {})
-    if not cart:
-        flash('Ваша корзина пуста', 'danger')
-        return redirect(url_for('cart'))
-    
-    total = 0
-    cart_items = []
-    
-    for product_id, quantity in cart.items():
+    try:
+        selected_geos = json.loads(request.form.get('selected_geos', '[]'))
+        if not selected_geos:
+            flash('Выберите хотя бы одну страну', 'error')
+            return redirect(url_for('cart'))
+        
+        cart = session.get('cart', {})
+        if not cart:
+            flash('Ваша корзина пуста', 'error')
+            return redirect(url_for('cart'))
+        
+        product_id = next(iter(cart))
         product = Product.query.get(int(product_id))
-        if product:
-            total += product.price * quantity
-            cart_items.append({
-                'product': product,
-                'quantity': quantity,
-                'package': product.package
-            })
+        if not product:
+            flash('Неверный товар в корзине', 'error')
+            return redirect(url_for('cart'))
+        
+        package = product.package
+        
+        total = sum(Product.query.get(int(id)).price * qty for id, qty in cart.items())
+        
+        if current_user.balance < total:
+            flash('Недостаточно средств', 'error')
+            return redirect(url_for('cart'))
+        
+        current_user.balance -= total
+        
+        key_str = generate_activation_key()
+        expires_at = datetime.utcnow() + timedelta(days=package.duration_days)
+        
+        activation_key = ActivationKey(
+            package_id=package.id,
+            key=key_str,
+            user_id=current_user.id,
+            geo=json.dumps(selected_geos),
+            expires_at=expires_at
+        )
+        db.session.add(activation_key)
+        db.session.flush()
+        
+        purchase = Purchase(
+            user_id=current_user.id,
+            package_id=package.id,
+            key_id=activation_key.id,
+            purchase_date=datetime.utcnow()
+        )
+        db.session.add(purchase)
+        
+        db.session.commit()
+        
+        send_purchase_key_email(current_user.email, key_str)
+        
+        session.pop('cart', None)
+        
+        return render_template('purchase_success.html', 
+                           activation_key={
+                               'key': key_str,
+                               'package': package,
+                               'expires_at': expires_at,
+                               'geo': selected_geos
+                           })
     
-    if current_user.balance < total:
-        flash('Недостаточно средств на балансе', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash('Ошибка при оформлении покупки: ' + str(e), 'error')
         return redirect(url_for('cart'))
-    
-    current_user.balance -= total
-    db.session.commit()
-    
-    activation_keys = []
-    for item in cart_items:
-        package = item['package']
-        for _ in range(item['quantity']):
-            key_str = generate_activation_key()
-            expires_at = datetime.utcnow() + timedelta(days=package.duration_days)
-            
-            activation_key = ActivationKey(
-                package_id=package.id,
-                key=key_str,
-                user_id=current_user.id,
-                expires_at=expires_at
-            )
-            db.session.add(activation_key)
-            db.session.flush()
-            
-            purchase = Purchase(
-                user_id=current_user.id,
-                package_id=package.id,
-                key_id=activation_key.id
-            )
-            db.session.add(purchase)
-            
-            activation_keys.append({
-                'key': key_str,
-                'package': package,
-                'expires_at': expires_at
-            })
-    
-    db.session.commit()
-    session.pop('cart', None)
-    
-    return render_template('purchase_success.html', activation_keys=activation_keys)
 
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', user=current_user)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    return render_template('profile.html', user=current_user, now=now)
 
 @app.route('/add_funds', methods=['POST'])
 @login_required

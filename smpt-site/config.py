@@ -1,0 +1,9 @@
+MAIL_SERVER = 'mail.privateemail.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USERNAME = 'support@lzt.store'
+MAIL_PASSWORD = 't9#Ypn97DeZa.h-'
+MAIL_DEFAULT_SENDER = 'support@lzt.store'
+SECRET_KEY = 'Yy93kDt8@Zs4vPx1#AjmRwXq9N8LdUq'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
+SQLALCHEMY_TRACK_MODIFICATIONS = False

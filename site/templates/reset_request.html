@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Сброс пароля - LZT{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h2>Сброс пароля</h2>
+            <p>Введите ваш email для получения кода сброса</p>
+        </div>
+        <form method="POST">
+            <div class="input-group">
+                <input type="email" name="email" class="input-field" placeholder="Email" required>
+            </div>
+            <button type="submit" class="submit-btn">Отправить код</button>
+        </form>
+        <div class="auth-footer">
+            <a href="{{ url_for('login') }}">Вернуться к входу</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,21 +5,37 @@
 <div class="container">
     <div class="purchase-success">
         <h2>Purchase Successful!</h2>
-        <p>Your activation keys:</p>
+        <p>Your activation key:</p>
         
-        <div class="activation-keys">
-            {% for key in activation_keys %}
-            <div class="activation-key-card">
-                <div class="key-value">{{ key.key }}</div>
-                <div class="key-info">
-                    <span>Package: {{ key.package.name }}</span>
-                    <span>Valid until: {{ key.expires_at.strftime('%Y-%m-%d') }}</span>
-                </div>
+        <div class="activation-key-card">
+            <div class="key-value">{{ activation_key.key }}</div>
+            <div class="key-info">
+                <p>Package: {{ activation_key.package.name }}</p>
+                <p>Valid until: {{ activation_key.expires_at.strftime('%Y-%m-%d') }}</p>
+                <p>Countries: 
+                    {% for country in activation_key.geo %}
+                    <span class="geo-badge">{{ country }}</span>
+                    {% endfor %}
+                </p>
             </div>
-            {% endfor %}
         </div>
         
         <a href="{{ url_for('profile') }}" class="cta-button cta-primary">Go to Profile</a>
     </div>
 </div>
+
+<style>
+    .geo-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        margin-right: 5px;
+        font-family: monospace;
+    }
+
+    .cta-button {
+        margin-top: 100px;
+    }
+</style>
 {% endblock %}

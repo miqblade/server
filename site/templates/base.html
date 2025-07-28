@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>LZT | {% block title %}{% endblock %}</title>
     <style>
-        /* Черный логотип */
         .logo {
             color: #000;
             font-weight: 700;
@@ -15,25 +14,26 @@
             letter-spacing: -1px;
         }
         
-        /* Убрать стили для посещенных ссылок */
         a:visited {
             color: inherit;
         }
         
-        /* Убрать подчеркивание по умолчанию */
         a {
             text-decoration: none;
         }
         
-        /* Стиль только при наведении */
         a:hover {
             text-decoration: underline;
         }
 
-        /* Убрать подчеркивание для кнопок при наведении */
         .buy-btn:hover, .cta-button:hover, .submit-btn:hover, 
         .checkout-btn:hover, .action-button:hover, .remove-btn:hover {
             text-decoration: none !important;
+        }
+
+        .btn-b {
+            color: #000;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -48,10 +48,7 @@
                 <ul class="nav-links">
                     <li><a href="{{ url_for('index') }}">Home</a></li>
                     <li><a href="{{ url_for('products') }}">Products</a></li>
-                    <li><a href="{{ url_for('templates') }}">Templates</a></li>
                     <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
-                    <li><a href="{{ url_for('support') }}">Support</a></li>
-                    <li><a href="{{ url_for('about') }}">About</a></li>
                 </ul>
                 
                 <div class="user-menu-container">
@@ -63,13 +60,12 @@
                     <div class="user-dropdown" id="userDropdown">
                         <a href="{{ url_for('profile') }}">My Profile</a>
                         <a href="{{ url_for('cart') }}">Shopping Cart</a>
-                        <a href="#">Purchase History</a>
                         <a href="{{ url_for('logout') }}" class="logout">Logout</a>
                     </div>
                     {% else %}
                     <div class="auth-links">
                         <a href="{{ url_for('login') }}" class="btn">Sign In</a>
-                        <a href="{{ url_for('register') }}" class="btn primary">Sign Up</a>
+                        <a href="{{ url_for('register') }}" class="btn primary btn-b ">Sign Up</a>
                     </div>
                     {% endif %}
                 </div>
@@ -93,13 +89,25 @@
         </div>
     </main>
 
+    <!-- Макрос для флагов стран -->
+    {% macro get_country_emoji(code) %}
+        {% set emoji_map = {
+            'US': '🇺🇸', 'DE': '🇩🇪', 'FR': '🇫🇷', 'GB': '🇬🇧',
+            'IT': '🇮🇹', 'ES': '🇪🇸', 'NL': '🇳🇱', 'CH': '🇨🇭',
+            'SE': '🇸🇪', 'BE': '🇧🇪', 'CA': '🇨🇦', 'MX': '🇲🇽',
+            'JP': '🇯🇵', 'KR': '🇰🇷', 'CN': '🇨🇳', 'SG': '🇸🇬',
+            'TH': '🇹🇭', 'AE': '🇦🇪', 'AU': '🇦🇺', 'RU': '🇷🇺',
+            'BR': '🇧🇷', 'IN': '🇮🇳', 'ZA': '🇿🇦', 'NZ': '🇳🇿'
+        } %}
+        {{ emoji_map.get(code, '🌐') }}
+    {% endmacro %}
+
     <script>
         function toggleDropdown() {
             const dropdown = document.getElementById('userDropdown');
             dropdown.classList.toggle('show');
         }
         
-        // Закрываем выпадающее меню при клике вне его
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('userDropdown');
             const userBtn = document.querySelector('.user-btn');
@@ -111,7 +119,6 @@
             }
         });
 
-        // Функция для переключения видимости пароля
         function togglePasswordVisibility(inputId) {
             const input = document.getElementById(inputId);
             const icon = document.querySelector(`[data-target="${inputId}"]`);
@@ -125,7 +132,6 @@
             }
         }
         
-        // Функция для инициализации переключателей пароля
         function initPasswordToggles() {
             document.querySelectorAll('.password-toggle').forEach(toggle => {
                 toggle.addEventListener('click', function() {
@@ -135,7 +141,6 @@
             });
         }
         
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             initPasswordToggles();
         });

@@ -64,36 +64,7 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-            </div>
-
-            <div class="input-group">
-                {{ form.email(class="input-field", placeholder="Email Address", autocomplete="off") }}
-                {% if form.email.errors or email_error %}
-                <div class="error-messages">
-                    {% for error in form.email.errors %}
-                    <div class="error-message">{{ error }}</div>
-                    {% endfor %}
-                    {% if email_error %}
-                    <div class="error-message">{{ email_error }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="input-group">
-                {{ form.username(class="input-field", placeholder="Username", autocomplete="off") }}
-                {% if form.username.errors or username_error %}
-                <div class="error-messages">
-                    {% for error in form.username.errors %}
-                    <div class="error-message">{{ error }}</div>
-                    {% endfor %}
-                    {% if username_error %}
-                    <div class="error-message">{{ username_error }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-            
+            </div>           
             {{ form.submit(class="submit-btn") }}
         </form>
         

@@ -12,7 +12,7 @@
         {% for item in cart_items %}
         <div class="cart-item">
             <div class="item-image">
-                <img src="../static/products/{{ item.product.image }}" alt="{{ item.product.name }}">
+                <img src="{{ url_for('static', filename='products/' + item.product.image) }}" alt="{{ item.product.name }}">
             </div>
             <div class="item-details">
                 <h3>{{ item.product.name }}</h3>
@@ -44,11 +44,82 @@
                 <span>Tax</span>
                 <span>$0.00</span>
             </div>
+            
+            <!-- Geo Multi-Selection Section -->
+            <div class="geo-multi-select">
+                <h4>Select Activation Countries</h4>
+                <div class="geo-search-container">
+                    <input type="text" class="geo-search" placeholder="Search by country code (DE, FR, US...)" id="geo-search-input">
+                    <button type="button" class="clear-search">✕</button>
+                </div>
+                
+                <div class="selected-geos">
+                    <div class="selected-header">Selected Countries:</div>
+                    <div class="selected-list" id="selected-countries-list">
+                        <div class="no-geo">No countries selected</div>
+                    </div>
+                </div>
+                
+                <div class="geo-regions" id="geo-regions-container">
+                    <!-- Europe -->
+                    <div class="geo-region active">
+                        <h5>Europe <span class="toggle-region">−</span></h5>
+                        <div class="geo-options">
+                            {% set europe_geos = [
+                                ('DE', 'Germany'), ('FR', 'France'), ('GB', 'UK'), 
+                                ('IT', 'Italy'), ('ES', 'Spain'), ('NL', 'Netherlands'),
+                                ('CH', 'Switzerland'), ('SE', 'Sweden'), ('BE', 'Belgium')
+                            ] %}
+                            {% for code, name in europe_geos %}
+                            <label class="geo-option" data-code="{{ code }}">
+                                <input type="checkbox" name="geo" value="{{ code }}">
+                                <span class="geo-code">{{ code }}</span>: {{ name }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- North America -->
+                    <div class="geo-region">
+                        <h5>North America <span class="toggle-region">+</span></h5>
+                        <div class="geo-options">
+                            {% set na_geos = [
+                                ('US', 'USA'), ('CA', 'Canada'), ('MX', 'Mexico')
+                            ] %}
+                            {% for code, name in na_geos %}
+                            <label class="geo-option" data-code="{{ code }}">
+                                <input type="checkbox" name="geo" value="{{ code }}">
+                                <span class="geo-code">{{ code }}</span>: {{ name }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Asia -->
+                    <div class="geo-region">
+                        <h5>Asia <span class="toggle-region">+</span></h5>
+                        <div class="geo-options">
+                            {% set asia_geos = [
+                                ('JP', 'Japan'), ('KR', 'South Korea'), ('CN', 'China'),
+                                ('SG', 'Singapore'), ('TH', 'Thailand'), ('AE', 'UAE')
+                            ] %}
+                            {% for code, name in asia_geos %}
+                            <label class="geo-option" data-code="{{ code }}">
+                                <input type="checkbox" name="geo" value="{{ code }}">
+                                <span class="geo-code">{{ code }}</span>: {{ name }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="summary-row total">
                 <span>Total</span>
                 <span>${{ total }}</span>
             </div>
-            <form method="POST" action="{{ url_for('checkout') }}">
+            <form method="POST" action="{{ url_for('checkout') }}" id="checkout-form">
+                <input type="hidden" name="selected_geos" id="selected-geos-input" value="[]">
                 <button type="submit" class="checkout-btn">Complete Purchase</button>
             </form>
         </div>
@@ -61,4 +132,499 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+    /* Cart Container */
+    .cart-container {
+        display: flex;
+        gap: 30px;
+        margin-top: 30px;
+    }
+    
+    /* Cart Items */
+    .cart-items {
+        flex: 2;
+    }
+    
+    .cart-item {
+        display: flex;
+        background: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+    
+    .item-image {
+        width: 120px;
+        height: 120px;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-right: 20px;
+    }
+    
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .item-details {
+        flex: 1;
+    }
+    
+    .item-details h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+    
+    .item-details p {
+        color: var(--light-text);
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    
+    .item-price {
+        color: var(--accent);
+        font-weight: 600;
+    }
+    
+    .item-total {
+        font-size: 18px;
+        font-weight: 700;
+        min-width: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .item-actions {
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+    }
+    
+    .remove-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: #f8f8f8;
+        border-radius: 50%;
+        color: var(--danger);
+        font-weight: bold;
+        font-size: 24px;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .remove-btn:hover {
+        background: var(--danger);
+        color: var(--white-text) !important;
+        transform: scale(1.1);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Cart Summary */
+    .cart-summary {
+        flex: 1;
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        height: fit-content;
+    }
+    
+    .summary-header {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+    
+    .summary-row.total {
+        font-weight: 700;
+        font-size: 18px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+    
+    .checkout-btn {
+        width: 100%;
+        padding: 15px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background 0.3s;
+    }
+    
+    .checkout-btn:hover {
+        background: #333;
+    }
+    
+    /* Empty Cart */
+    .empty-cart {
+        text-align: center;
+        padding: 50px 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .empty-cart h3 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .empty-cart p {
+        color: var(--light-text);
+        margin-bottom: 30px;
+        max-width: 500px;
+    }
+    
+    /* Geo Multi-Select Styles */
+    .geo-multi-select {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 1px solid #eee;
+    }
+    
+    .geo-search-container {
+        position: relative;
+        margin-bottom: 15px;
+    }
+    
+    .geo-search {
+        width: 100%;
+        padding: 10px 35px 10px 15px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    
+    .geo-search:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+    }
+    
+    .clear-search {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #999;
+        font-size: 16px;
+        padding: 0;
+    }
+    
+    .clear-search:hover {
+        color: var(--danger);
+    }
+    
+    .selected-geos {
+        background: white;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #eee;
+    }
+    
+    .selected-header {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text);
+        font-size: 14px;
+    }
+    
+    .selected-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 20px;
+    }
+    
+    .selected-geo {
+        background: #e9ecef;
+        color: var(--text);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #dee2e6;
+    }
+    
+    .geo-code {
+        font-weight: bold;
+        color: var(--primary);
+        width: 28px;
+        display: inline-block;
+    }
+    
+    .remove-geo {
+        margin-left: 8px;
+        cursor: pointer;
+        color: var(--danger);
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1;
+    }
+    
+    .no-geo {
+        color: var(--light-text);
+        font-style: italic;
+        font-size: 14px;
+    }
+    
+    .geo-regions {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 6px;
+    }
+    
+    .geo-region {
+        border-bottom: 1px solid #eee;
+    }
+    
+    .geo-region:last-child {
+        border-bottom: none;
+    }
+    
+    .geo-region h5 {
+        background: #f1f3f5;
+        padding: 12px 15px;
+        margin: 0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .toggle-region {
+        font-size: 18px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .geo-options {
+        padding: 5px 0;
+        display: none;
+    }
+    
+    .geo-region.active .geo-options {
+        display: block;
+    }
+    
+    .geo-option {
+        display: flex;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        align-items: center;
+        transition: background 0.2s;
+    }
+    
+    .geo-option:hover {
+        background: #f8f9fa;
+    }
+    
+    .geo-option input[type="checkbox"] {
+        margin-right: 12px;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cart-container {
+            flex-direction: column;
+        }
+        
+        .geo-multi-select {
+            padding: 15px;
+        }
+        
+        .geo-regions {
+            max-height: 300px;
+        }
+        
+        .geo-option {
+            padding: 8px 10px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Основные элементы
+    const form = document.getElementById('checkout-form');
+    const selectedInput = document.getElementById('selected-geos-input');
+    const selectedList = document.getElementById('selected-countries-list');
+    const searchInput = document.getElementById('geo-search-input');
+    const clearSearch = document.querySelector('.clear-search');
+    const geoContainer = document.querySelector('.geo-regions');
+
+    // Инициализация - открываем первый регион
+    document.querySelector('.geo-region').classList.add('active');
+
+    // Обработчик для сворачивания/разворачивания регионов
+    document.querySelectorAll('.geo-region h5').forEach(header => {
+        header.addEventListener('click', function() {
+            const region = this.parentElement;
+            region.classList.toggle('active');
+            this.querySelector('.toggle-region').textContent = 
+                region.classList.contains('active') ? '−' : '+';
+        });
+    });
+
+    // УЛУЧШЕННЫЙ поиск стран
+    searchInput.addEventListener('input', function() {
+        const term = this.value.trim().toUpperCase();
+        let found = false;
+        
+        document.querySelectorAll('.geo-option').forEach(option => {
+            const code = option.getAttribute('data-code');
+            const match = code.includes(term);
+            
+            option.style.display = match ? 'flex' : 'none';
+            
+            // Автоматически раскрываем регион если нашли совпадение
+            if (match && term.length >= 2) {
+                found = true;
+                const region = option.closest('.geo-region');
+                if (!region.classList.contains('active')) {
+                    region.classList.add('active');
+                    region.querySelector('.toggle-region').textContent = '−';
+                }
+                // Прокручиваем к найденному элементу
+                if (code === term) {
+                    setTimeout(() => {
+                        option.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        option.style.backgroundColor = 'rgba(255, 107, 0, 0.1)';
+                        setTimeout(() => option.style.backgroundColor = '', 1000);
+                    }, 100);
+                }
+            }
+        });
+        
+        // Если не нашли - показываем сообщение
+        const noResults = document.getElementById('no-results-message');
+        if (!found && term.length >= 2) {
+            if (!noResults) {
+                const msg = document.createElement('div');
+                msg.id = 'no-results-message';
+                msg.className = 'no-results';
+                msg.textContent = 'No countries found';
+                geoContainer.appendChild(msg);
+            }
+        } else if (noResults) {
+            noResults.remove();
+        }
+    });
+
+    // Очистка поиска
+    clearSearch.addEventListener('click', function() {
+        searchInput.value = '';
+        document.querySelectorAll('.geo-option').forEach(opt => opt.style.display = 'flex');
+        document.getElementById('no-results-message')?.remove();
+        searchInput.focus();
+    });
+
+    // Обработчик выбора стран
+    function setupGeoHandlers() {
+        document.querySelectorAll('input[name="geo"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedGeos();
+            });
+        });
+    }
+
+    // Обновление списка выбранных стран
+    function updateSelectedGeos() {
+        const checked = Array.from(document.querySelectorAll('input[name="geo"]:checked'));
+        const selected = checked.map(cb => ({
+            code: cb.value,
+            name: cb.closest('.geo-option').textContent.trim().split(': ')[1]
+        }));
+
+        // Обновляем скрытое поле формы
+        selectedInput.value = JSON.stringify(selected.map(g => g.code));
+
+        // Обновляем отображение
+        selectedList.innerHTML = selected.length ? '' : '<div class="no-geo">No countries selected</div>';
+        
+        selected.forEach(geo => {
+            const item = document.createElement('div');
+            item.className = 'selected-geo';
+            item.innerHTML = `
+                ${geo.code}: ${geo.name}
+                <span class="remove-geo" data-geo="${geo.code}">×</span>
+            `;
+            selectedList.appendChild(item);
+        });
+
+        // Вешаем обработчики удаления
+        document.querySelectorAll('.remove-geo').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const geo = btn.getAttribute('data-geo');
+                const checkbox = document.querySelector(`input[name="geo"][value="${geo}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    updateSelectedGeos();
+                }
+            });
+        });
+    }
+
+    // Инициализация при загрузке
+    setupGeoHandlers();
+    updateSelectedGeos();
+});
+</script>
+
+<style>
+    /* Добавляем стиль для сообщения "No countries found" */
+    .no-results {
+        padding: 15px;
+        text-align: center;
+        color: var(--light-text);
+        font-style: italic;
+        background: #f8f9fa;
+        border-radius: 5px;
+        margin: 10px;
+    }
+    
+    /* Анимация для найденных элементов */
+    .geo-option {
+        transition: background-color 0.3s ease;
+    }
+</style>
 {% endblock %}

@@ -615,8 +615,10 @@ a:visited {
     display: flex;
     align-items: center;
     animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
-    opacity: 1;
-    transform: translateX(0);
+}
+
+.flash-error {
+    background: #f44336; /* Красный цвет */
 }
 
 @keyframes slideIn {
@@ -793,6 +795,7 @@ a:visited {
 }
 
 .cta-button {
+    margin-top: 40px;
     padding: 15px 30px;
     border-radius: 30px;
     font-weight: 500;
@@ -1085,37 +1088,43 @@ a:visited {
     color: var(--danger);
 }
 
-/* Добавим в конец файла */
-.support-option {
-    padding: 30px 20px; /* Увеличим внутренние отступы */
-    height: 280px; /* Фиксированная высота карточки */
-    display: flex;
-    flex-direction: column;
+.support-section {
+    padding: 60px 0;
 }
 
-.support-option-top {
-    flex: 1; /* Занимает всё доступное пространство */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.support-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.support-option {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+}
+
+.support-option:hover {
+    transform: translateY(-5px);
 }
 
 .support-option .icon {
+    font-size: 48px;
     margin-bottom: 20px;
 }
 
 .support-option h3 {
     margin-bottom: 15px;
-    min-height: 60px; /* Минимальная высота для заголовка */
+    color: var(--primary);
 }
 
 .support-option p {
-    margin-bottom: 25px;
-    flex-grow: 1; /* Растягиваем абзац на доступное пространство */
-}
-
-.support-option .cta-button {
-    margin-top: auto; /* Прижимаем кнопку к низу */
+    color: var(--light-text);
+    margin-bottom: 20px;
 }
 
 .purchase-success {
@@ -1136,7 +1145,7 @@ a:visited {
     background: #f8f9fa;
     border-radius: 10px;
     padding: 20px;
-    margin: 15px 0;
+    margin: 50px 20px;
     text-align: center;
     border: 1px solid #e9ecef;
     transition: all 0.3s;
@@ -1195,6 +1204,196 @@ a:visited {
 .add-funds-form .submit-btn {
     width: auto;
     padding: 0 25px;
+}
+
+/* Geo Selection Styles */
+/* Geo Multi-Select Container */
+.geo-multi-select {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+/* Search Section */
+.geo-search-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.geo-search {
+    width: 100%;
+    padding: 10px 35px 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.geo-search:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+}
+
+.clear-search {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 16px;
+    padding: 0;
+}
+
+.clear-search:hover {
+    color: var(--danger);
+}
+
+/* Selected Countries Section */
+.selected-geos {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+}
+
+.selected-header {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 20px;
+}
+
+/* Individual Selected Country */
+.selected-geo {
+    background: #e9ecef;
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #dee2e6;
+}
+
+.selected-geo-code {
+    font-weight: bold;
+    color: var(--primary);
+    margin-right: 5px;
+}
+
+.remove-geo {
+    margin-left: 8px;
+    cursor: pointer;
+    color: var(--danger);
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.no-geo {
+    color: var(--light-text);
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Regions (Continents) */
+.geo-regions {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.geo-region {
+    border-bottom: 1px solid #eee;
+}
+
+.geo-region:last-child {
+    border-bottom: none;
+}
+
+.geo-region h5 {
+    background: #f1f3f5;
+    padding: 12px 15px;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.toggle-region {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Country Options List */
+.geo-options {
+    padding: 5px 0;
+    display: none;
+}
+
+.geo-region.active .geo-options {
+    display: block;
+}
+
+.geo-option {
+    display: flex;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.geo-option:hover {
+    background: #f8f9fa;
+}
+
+.geo-option input[type="checkbox"] {
+    margin-right: 12px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.geo-code {
+    font-weight: bold;
+    color: var(--primary);
+    width: 28px;
+    display: inline-block;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .geo-multi-select {
+        padding: 15px;
+    }
+    
+    .geo-regions {
+        max-height: 300px;
+    }
+    
+    .geo-option {
+        padding: 8px 10px;
+    }
 }
 
 /* Responsive */

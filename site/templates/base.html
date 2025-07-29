@@ -14,9 +14,9 @@
             letter-spacing: -1px;
         }
         
-        a:visited {
+        /* a:visited {
             color: inherit;
-        }
+        } */
         
         a {
             text-decoration: none;
@@ -32,8 +32,18 @@
         }
 
         .btn-b {
-            color: #000;
+            color: var(--accent);
             font-weight: bold;
+        }
+
+        .balik-babki{
+            margin: auto;
+            margin-left: 20px;
+            padding: 5px 20px;
+            background-color: rgb(224, 224, 224);
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
         }
     </style>
 </head>
@@ -52,6 +62,7 @@
                 </ul>
                 
                 <div class="user-menu-container">
+                    <div class="detail-value balik-babki">${{ "%.2f"|format(current_user.balance) }}</div>
                     {% if current_user.is_authenticated %}
                     <button class="user-btn" onclick="toggleDropdown()">
                         <span class="user-avatar-small">{{ current_user.username[0] }}</span>

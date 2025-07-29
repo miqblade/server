@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Верификация Email - LZT{% endblock %}
+{% block title %}Email Verification - LZT{% endblock %}
 {% block content %}
 <div class="auth-container">
     <div class="auth-box">
         <div class="auth-header">
-            <h2>Верификация Email</h2>
-            <p>Код верификации отправлен на <strong>{{ email }}</strong></p>
+            <h2>Email Verification</h2>
+            <p>Verification code sent to<strong>{{ email }}</strong></p>
         </div>
         <form method="POST">
             <div class="input-group">
                 <input type="text" name="code" class="input-field" placeholder="Код верификации" required>
             </div>
-            <button type="submit" class="submit-btn">Верифицировать</button>
+            <button type="submit" class="submit-btn">Verify</button>
         </form>
-        <p><a href="{{ url_for('resend_verification') }}">Отправить код повторно</a></p>
+        <p><a href="{{ url_for('resend_verification') }}">Resend code</a></p>
     </div>
 </div>
 {% endblock %}

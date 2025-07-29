@@ -36,7 +36,7 @@ a {
 } */
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -101,11 +101,13 @@ a {
 }
 
 .user-menu-container {
+    position: relative;
     display: flex;
     justify-content: space-between;
 }
 
 .user-btn {
+    position: relative;
     background: none;
     border: none;
     cursor: pointer;
@@ -137,7 +139,7 @@ a {
 .user-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
+    right: -80px;
     background: white;
     box-shadow: var(--shadow);
     border-radius: 10px;
@@ -1468,6 +1470,10 @@ a {
 }
 
 @media (max-width: 480px) {
+    .user-dropdown{
+        right: -40px;
+    }
+
     .products-grid {
         grid-template-columns: 1fr;
     }

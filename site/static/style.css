@@ -31,9 +31,9 @@ a {
     color: inherit;
 }
 
-a:visited {
+/* a:visited {
     color: inherit;
-}
+} */
 
 .container {
     max-width: 1200px;
@@ -101,7 +101,8 @@ a:visited {
 }
 
 .user-menu-container {
-    position: relative;
+    display: flex;
+    justify-content: space-between;
 }
 
 .user-btn {
@@ -1471,9 +1472,9 @@ a:visited {
         grid-template-columns: 1fr;
     }
     
-    .user-btn span {
+    /* .user-btn span {
         display: none;
-    }
+    } */
     
     .cart-indicator {
         top: 70px;

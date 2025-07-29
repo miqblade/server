@@ -38,7 +38,6 @@
 
         .balik-babki{
             margin: auto;
-            margin-left: 20px;
             padding: 5px 20px;
             background-color: rgb(224, 224, 224);
             border-radius: 30px;
@@ -62,7 +61,11 @@
                 </ul>
                 
                 <div class="user-menu-container">
-                    <div class="detail-value balik-babki">${{ "%.2f"|format(current_user.balance) }}</div>
+                    {% if current_user.is_authenticated %}
+                        <div class="detail-value balik-babki">${{ "%.2f"|format(current_user.balance) }}</div>
+                    {% else %}
+                        <div class="detail-value balik-babki" style="visibility: hidden;">$0.00</div>
+                    {% endif %}
                     {% if current_user.is_authenticated %}
                     <button class="user-btn" onclick="toggleDropdown()">
                         <span class="user-avatar-small">{{ current_user.username[0] }}</span>

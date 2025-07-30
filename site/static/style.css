@@ -57,6 +57,7 @@ a {
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
+    
 }
 
 .logo {
@@ -71,6 +72,7 @@ a {
 .nav-links {
     display: flex;
     list-style: none;
+    margin-left: 200px;
 }
 
 .nav-links li {
@@ -1385,6 +1387,12 @@ a {
 }
 
 /* Responsive Adjustments */
+@media (max-width: 940px){
+    .nav-links{
+        margin-left: 0px;
+    }
+}
+
 @media (max-width: 768px) {
     .geo-multi-select {
         padding: 15px;

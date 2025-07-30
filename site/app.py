@@ -135,7 +135,7 @@ def index():
 def resend_verification():
     email = session.get('email')
     if not email:
-        flash('Сессия истекла. Пожалуйста, зарегистрируйтесь заново.', 'danger')
+        flash('Session expired. Please register again.', 'danger')
         return redirect(url_for('register'))
     
     user = User.query.filter_by(email=email).first()
@@ -145,11 +145,11 @@ def resend_verification():
         db.session.commit()
         try:
             send_verification_email(email, code)
-            flash('Новый код верификации отправлен на ваш email.', 'success')
+            flash('A new verification code has been sent to your email.', 'success')
         except Exception as e:
             flash(f'Ошибка отправки кода: {str(e)}', 'danger')
     else:
-        flash('Пользователь не найден. Пожалуйста, зарегистрируйтесь заново.', 'danger')
+        flash('User not found. Please register again.', 'danger')
         return redirect(url_for('register'))
     
     return redirect(url_for('verify'))
@@ -169,12 +169,12 @@ def reset_request():
             session['email'] = email  # Сохраняем email в сессии
             try:
                 send_reset_password_email(email, code)
-                flash('Код сброса пароля отправлен на ваш email.', 'success')
+                flash('The password reset code has been sent to your email.', 'success')
                 return redirect(url_for('reset_password'))
             except Exception as e:
-                flash(f'Ошибка отправки кода: {str(e)}', 'danger')
+                flash(f'Error sending code: {str(e)}', 'danger')
         else:
-            flash('Email не найден.', 'danger')
+            flash('Email not found.', 'danger')
     
     return render_template('reset_request.html')
 
@@ -185,7 +185,7 @@ def reset_password():
     
     email = session.get('email')  # Получаем email из сессии
     if not email:
-        flash('Сессия истекла. Пожалуйста, запросите сброс пароля заново.', 'danger')
+        flash('Session expired. Please request password reset again.', 'danger')
         return redirect(url_for('reset_request'))
     
     if request.method == 'POST':
@@ -197,9 +197,9 @@ def reset_password():
             user.reset_code = None
             db.session.commit()
             session.pop('email', None)  # Удаляем email из сессии
-            flash('Пароль успешно изменен! Теперь вы можете войти.', 'success')
+            flash('Password successfully changed! You can now log in.', 'success')
             return redirect(url_for('login'))
-        flash('Неверный код сброса пароля', 'danger')
+        flash('Invalid password reset code', 'danger')
     
     return render_template('reset_password.html', email=email)
 
@@ -246,19 +246,19 @@ def register():
             db.session.commit()
             session['email'] = form.email.data  # Сохраняем email в сессии
             send_verification_email(form.email.data, code)
-            flash('Регистрация успешна! Код верификации отправлен на ваш email.', 'success')
+            flash('Registration successful! Verification code sent to your email.', 'success')
             return redirect(url_for('verify'))
         except IntegrityError as e:
             db.session.rollback()
             if "user_username_key" in str(e):
-                form.username.errors.append('Это имя пользователя уже занято')
+                form.username.errors.append('This username is already taken')
             elif "user_email_key" in str(e):
-                form.email.errors.append('Этот email уже используется')
+                form.email.errors.append('This email is already in use')
             else:
-                flash('Ошибка при регистрации', 'danger')
+                flash('Error during registration', 'danger')
         except Exception as e:
             db.session.rollback()
-            flash(f'Ошибка: {str(e)}', 'danger')
+            flash(f'Error: {str(e)}', 'danger')
     
     return render_template('register.html', form=form)
 
@@ -272,7 +272,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             if not user.verified:
-                flash('Пожалуйста, верифицируйте ваш email перед входом', 'error')
+                flash('Please verify your email before logging in.', 'error')
                 return redirect(url_for('verify'))
             if user.password.startswith('$2b$'):
                 if bcrypt.check_password_hash(user.password, form.password.data):
@@ -284,7 +284,7 @@ def login():
                 login_user(user, remember=form.remember_me.data)
                 return redirect(request.args.get('next') or url_for('index'))
         
-        flash('Неверный email или пароль', 'danger')
+        flash('Incorrect email or password', 'danger')
     return render_template('login.html', form=form)
 
 @app.route('/verify', methods=['GET', 'POST'])
@@ -294,7 +294,7 @@ def verify():
     
     email = session.get('email')  # Получаем email из сессии
     if not email:
-        flash('Сессия истекла. Пожалуйста, зарегистрируйтесь заново.', 'danger')
+        flash('Session expired. Please register again.', 'danger')
         return redirect(url_for('register'))
     
     if request.method == 'POST':
@@ -305,9 +305,9 @@ def verify():
             user.verify_code = None
             db.session.commit()
             session.pop('email', None)  # Удаляем email из сессии после верификации
-            flash('Email успешно верифицирован! Теперь вы можете войти.', 'success')
+            flash('Email successfully verified! Now you can log in.', 'success')
             return redirect(url_for('login'))
-        flash('Неверный код верификации', 'danger')
+        flash('Invalid verification code', 'danger')
     
     return render_template('verify.html', email=email)
 
@@ -329,7 +329,7 @@ def add_to_cart(product_id):
         cart[product_id_str] = 1
     
     session['cart'] = cart
-    flash('Товар добавлен в корзину!', 'success')
+    flash('Product added to cart!', 'success')
     return redirect(url_for('cart'))
 
 @app.route('/remove_from_cart/<int:product_id>')
@@ -345,7 +345,7 @@ def remove_from_cart(product_id):
             del cart[product_id_str]
         
         session['cart'] = cart
-        flash('Товар удалён из корзины!', 'success')
+        flash('The product has been removed from the cart!', 'success')
     
     return redirect(url_for('cart'))
 
@@ -375,18 +375,18 @@ def checkout():
     try:
         selected_geos = json.loads(request.form.get('selected_geos', '[]'))
         if not selected_geos:
-            flash('Выберите хотя бы одну страну', 'error')
+            flash('Please select at least one country', 'error')
             return redirect(url_for('cart'))
         
         cart = session.get('cart', {})
         if not cart:
-            flash('Ваша корзина пуста', 'error')
+            flash('Your cart is empty', 'error')
             return redirect(url_for('cart'))
         
         product_id = next(iter(cart))
         product = Product.query.get(int(product_id))
         if not product:
-            flash('Неверный товар в корзине', 'error')
+            flash('Invalid item in cart', 'error')
             return redirect(url_for('cart'))
         
         package = product.package
@@ -394,7 +394,7 @@ def checkout():
         total = sum(Product.query.get(int(id)).price * qty for id, qty in cart.items())
         
         if current_user.balance < total:
-            flash('Недостаточно средств', 'error')
+            flash('Insufficient funds', 'error')
             return redirect(url_for('cart'))
         
         current_user.balance -= total
@@ -436,7 +436,7 @@ def checkout():
     
     except Exception as e:
         db.session.rollback()
-        flash('Ошибка при оформлении покупки: ' + str(e), 'error')
+        flash('Error while placing your purchase: ' + str(e), 'error')
         return redirect(url_for('cart'))
 
 @app.route('/profile')
@@ -451,14 +451,14 @@ def add_funds():
     try:
         amount = float(request.form.get('amount', 0))
         if amount <= 0:
-            flash('Неверная сумма пополнения', 'danger')
+            flash('Incorrect top-up amount', 'danger')
             return redirect(url_for('profile'))
         
         current_user.balance += amount
         db.session.commit()
-        flash(f'Счет успешно пополнен на ${amount:.2f}', 'success')
+        flash(f'The account has been successfully replenished by ${amount:.2f}', 'success')
     except ValueError:
-        flash('Неверный формат суммы', 'danger')
+        flash('Invalid amount format', 'danger')
     
     return redirect(url_for('profile'))
 
